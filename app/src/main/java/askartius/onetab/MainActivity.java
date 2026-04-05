@@ -48,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
         // Setup WebView
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setUserAgentString("Mozilla/5.0");
-        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         webView.getSettings().setSaveFormData(false);
         webView.getSettings().setGeolocationEnabled(false);
         webView.getSettings().setDomStorageEnabled(false);
@@ -78,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
                 actionButtonLayout.animate().scaleY(0).setDuration(50);
             }
         });
-        //webView.clearCache(true);
 
         // Disable cookies
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, false);
@@ -101,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Setup query button
+        // Setup action button
         actionButton.setOnClickListener(v -> {
             searchView.setText(webView.getUrl());
             searchView.getEditText().selectAll();
