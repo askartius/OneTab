@@ -10,7 +10,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -21,8 +20,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.search.SearchBar;
 import com.google.android.material.search.SearchView;
 
 import java.util.Objects;
@@ -43,9 +42,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         webView = findViewById(R.id.web_view);
-        FrameLayout actionButtonLayout = findViewById(R.id.action_button_layout);
-        CircularProgressIndicator progressIndicator = findViewById(R.id.progress_indicator);
-        MaterialButton actionButton = findViewById(R.id.action_button);
+        LinearProgressIndicator progressIndicator = findViewById(R.id.progress_indicator);
+        SearchBar searchBar = findViewById(R.id.search_bar);
         SearchView searchView = findViewById(R.id.search_view);
 
         // Setup WebView
@@ -74,19 +72,10 @@ public class MainActivity extends AppCompatActivity {
 
                 if (newProgress >= 100) {
                     progressIndicator.animate().alpha(0).setDuration(750);
+                    searchBar.setText(webView.getUrl());
                 } else if (progressIndicator.getAlpha() == 0) {
-                    progressIndicator.animate().alpha(1).setDuration(250);
+                    progressIndicator.setAlpha(1);
                 }
-            }
-        });
-        webView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            if (scrollY < oldScrollY && actionButtonLayout.getScaleX() == 0) {
-                actionButtonLayout.animate().scaleX(1).setDuration(50);
-                actionButtonLayout.animate().scaleY(1).setDuration(50);
-            }
-            if (scrollY > oldScrollY && actionButtonLayout.getScaleX() == 1) {
-                actionButtonLayout.animate().scaleX(0).setDuration(50);
-                actionButtonLayout.animate().scaleY(0).setDuration(50);
             }
         });
 
@@ -111,13 +100,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Setup action button
-        actionButton.setOnClickListener(v -> {
-            searchView.setText(webView.getUrl());
+        // Setup search bar
+        searchBar.setOnClickListener(v -> {
+            searchView.setText(searchBar.getText());
             searchView.getEditText().selectAll();
             searchView.show();
         });
-        actionButton.setOnLongClickListener(v -> {
+        searchBar.setOnLongClickListener(v -> {
             webView.reload();
             return true;
         });
@@ -129,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 webView.loadUrl("https://www.bing.com/search?q=" + searchView.getText());
             }
+
+            searchBar.setText(searchView.getText());
 
             searchView.hide();
 
