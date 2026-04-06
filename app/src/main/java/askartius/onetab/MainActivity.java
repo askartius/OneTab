@@ -1,15 +1,17 @@
 package askartius.onetab;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -28,6 +30,7 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,12 +50,21 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup WebView
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setUserAgentString("Mozilla/5.0");
+        webView.getSettings().setUserAgentString("Mozilla/5.0 (Android 7)");
         webView.getSettings().setSaveFormData(false);
         webView.getSettings().setGeolocationEnabled(false);
         webView.getSettings().setDomStorageEnabled(false);
         webView.getSettings().setDatabaseEnabled(false);
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                if (request.getUrl().toString().contains("youtube.com")) {
+                    Toast.makeText(MainActivity.this, "This content is blocked", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                return false;
+            }
+        });
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
