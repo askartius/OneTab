@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <style name="Base.Theme.OneTab" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar" />
     <style name="Theme.OneTab" parent="Base.Theme.OneTab" />
 </resources>
