@@ -1,11 +1,15 @@
 package askartius.onetab;
 
 import android.annotation.SuppressLint;
+import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Patterns;
 import android.webkit.CookieManager;
+import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -87,6 +91,23 @@ public class MainActivity extends AppCompatActivity {
             if (scrollY > oldScrollY && actionButtonLayout.getScaleX() == 1) {
                 actionButtonLayout.animate().scaleX(0).setDuration(50);
                 actionButtonLayout.animate().scaleY(0).setDuration(50);
+            }
+        });
+        webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
+            DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+            String fileName = URLUtil.guessFileName(url, contentDisposition, mimetype);
+
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+            request.setMimeType(mimetype);
+            request.setTitle(fileName);
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+            if (downloadManager != null) {
+                downloadManager.enqueue(request);
+                Toast.makeText(MainActivity.this, "Download started", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(MainActivity.this, "Error: download manager not found", Toast.LENGTH_SHORT).show();
             }
         });
 
