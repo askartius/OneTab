@@ -150,10 +150,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Set up the search bar
+        searchView.setupWithSearchBar(searchBar);
         searchBar.setOnClickListener(v -> {
-            searchView.setText(searchBar.getText());
-            searchView.getEditText().selectAll();
             searchView.show();
+            searchView.getEditText().selectAll();
         });
         searchBar.setOnLongClickListener(v -> {
             webView.reload();
