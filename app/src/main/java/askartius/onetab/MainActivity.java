@@ -3,12 +3,10 @@ package askartius.onetab;
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.util.Patterns;
 import android.webkit.CookieManager;
 import android.webkit.URLUtil;
@@ -99,9 +97,24 @@ public class MainActivity extends AppCompatActivity {
         });
         webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
             String fileName = URLUtil.guessFileName(url, contentDisposition, mimetype);
+            String dialogTitle = "Download file?";
 
+            // Add file size to dialog title if it is known
+            if (contentLength > 0) {
+                double unitSize = 1.0;
+                for (int i = 0; i < 5; i++) {
+                    if (contentLength / unitSize > 100) {
+                        unitSize *= 1024;
+                    } else {
+                        dialogTitle += String.format(Locale.getDefault(), " (%.2f %cB)", contentLength / unitSize, new char[]{'\0', 'k', 'M', 'G', 'T'}[i]);
+                        break;
+                    }
+                }
+            }
+
+            // Show confirmation dialog
             new MaterialAlertDialogBuilder(MainActivity.this)
-                    .setTitle("Download this file?")
+                    .setTitle(dialogTitle)
                     .setMessage(fileName)
                     .setPositiveButton("Download", (dialog, which) -> {
                         dialog.dismiss();
