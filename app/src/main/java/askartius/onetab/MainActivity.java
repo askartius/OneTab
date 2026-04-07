@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         SearchBar searchBar = findViewById(R.id.search_bar);
         SearchView searchView = findViewById(R.id.search_view);
 
-        // Setup WebView
+        // Set up the WebView
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setUserAgentString("Mozilla/5.0 (Android 7)");
         webView.getSettings().setSaveFormData(false);
@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                // Block specific websites
                 if (request.getUrl().toString().contains("youtube.com")) {
                     Toast.makeText(MainActivity.this, "This content is blocked", Toast.LENGTH_SHORT).show();
                     return true;
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             String fileName = URLUtil.guessFileName(url, contentDisposition, mimetype);
             String dialogTitle = "Download file?";
 
-            // Add file size to dialog title if it is known
+            // Add the file size to the dialog title if it is known
             if (contentLength > 0) {
                 double unitSize = 1.0;
                 for (int i = 0; i < 5; i++) {
@@ -101,13 +102,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            // Show confirmation dialog
+            // Show a confirmation dialog
             new MaterialAlertDialogBuilder(MainActivity.this)
                     .setTitle(dialogTitle)
                     .setMessage(fileName)
                     .setPositiveButton("Download", (dialog, which) -> {
                         dialog.dismiss();
 
+                        // Start the download
                         DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
                         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 
@@ -129,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         // Disable cookies
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, false);
 
-        // Setup back gesture handling
+        // Set up the back gesture handling
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -142,12 +144,12 @@ public class MainActivity extends AppCompatActivity {
                     webView.stopLoading();
                     webView.goBack();
                 } else {
-                    finish();
+                    finish(); // Close the app
                 }
             }
         });
 
-        // Setup search bar
+        // Set up the search bar
         searchBar.setOnClickListener(v -> {
             searchView.setText(searchBar.getText());
             searchView.getEditText().selectAll();
@@ -158,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        // Setup search
+        // Set up the search
         searchView.getEditText().setOnEditorActionListener((v, actionId, event) -> {
             if (Patterns.WEB_URL.matcher(searchView.getText()).matches()) {
                 webView.loadUrl(searchView.getText().toString());
@@ -195,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleIntent(@NonNull Intent intent) {
+        // Check if the user opened a deep link
         if (Objects.equals(intent.getAction(), Intent.ACTION_VIEW)) {
             Uri uri = intent.getData();
             if (uri != null && (Objects.equals(uri.getScheme(), "https") || Objects.equals(uri.getScheme(), "http"))) {
