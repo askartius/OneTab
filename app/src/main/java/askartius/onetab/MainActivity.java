@@ -1,11 +1,15 @@
 package askartius.onetab;
 
 import android.annotation.SuppressLint;
+import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Patterns;
 import android.webkit.CookieManager;
+import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -22,8 +26,10 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.search.SearchBar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.search.SearchView;
 
+import java.util.Locale;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
@@ -77,6 +83,47 @@ public class MainActivity extends AppCompatActivity {
                     progressIndicator.setAlpha(1);
                 }
             }
+        });
+        webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
+            String fileName = URLUtil.guessFileName(url, contentDisposition, mimetype);
+            String dialogTitle = "Download file?";
+
+            // Add file size to dialog title if it is known
+            if (contentLength > 0) {
+                double unitSize = 1.0;
+                for (int i = 0; i < 5; i++) {
+                    if (contentLength / unitSize > 100) {
+                        unitSize *= 1024;
+                    } else {
+                        dialogTitle += String.format(Locale.getDefault(), " (%.2f %cB)", contentLength / unitSize, new char[]{'\0', 'k', 'M', 'G', 'T'}[i]);
+                        break;
+                    }
+                }
+            }
+
+            // Show confirmation dialog
+            new MaterialAlertDialogBuilder(MainActivity.this)
+                    .setTitle(dialogTitle)
+                    .setMessage(fileName)
+                    .setPositiveButton("Download", (dialog, which) -> {
+                        dialog.dismiss();
+
+                        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+
+                        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+                        request.setMimeType(mimetype);
+                        request.setTitle(fileName);
+                        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+                        if (downloadManager != null) {
+                            downloadManager.enqueue(request);
+                            Toast.makeText(MainActivity.this, "Download started", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MainActivity.this, "Error: download manager not found", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss()).show();
         });
 
         // Disable cookies
