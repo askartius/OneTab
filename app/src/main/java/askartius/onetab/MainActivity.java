@@ -3,10 +3,12 @@ package askartius.onetab;
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.util.Patterns;
 import android.webkit.CookieManager;
 import android.webkit.URLUtil;
@@ -26,9 +28,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.search.SearchView;
 
+import java.util.Locale;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
@@ -94,21 +98,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
-            DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             String fileName = URLUtil.guessFileName(url, contentDisposition, mimetype);
 
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-            request.setMimeType(mimetype);
-            request.setTitle(fileName);
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            new MaterialAlertDialogBuilder(MainActivity.this)
+                    .setTitle("Download this file?")
+                    .setMessage(fileName)
+                    .setPositiveButton("Download", (dialog, which) -> {
+                        dialog.dismiss();
 
-            if (downloadManager != null) {
-                downloadManager.enqueue(request);
-                Toast.makeText(MainActivity.this, "Download started", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(MainActivity.this, "Error: download manager not found", Toast.LENGTH_SHORT).show();
-            }
+                        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+
+                        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+                        request.setMimeType(mimetype);
+                        request.setTitle(fileName);
+                        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+                        if (downloadManager != null) {
+                            downloadManager.enqueue(request);
+                            Toast.makeText(MainActivity.this, "Download started", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MainActivity.this, "Error: download manager not found", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss()).show();
         });
 
         // Disable cookies
