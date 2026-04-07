@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 // Block specific websites
                 if (request.getUrl().toString().contains("youtube.com")) {
-                    Toast.makeText(MainActivity.this, "This content is blocked", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, R.string.content_blocked, Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         });
         webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
             String fileName = URLUtil.guessFileName(url, contentDisposition, mimetype);
-            String dialogTitle = "Download file?";
+            String dialogTitle = getString(R.string.download_dialog_title);
 
             // Add the file size to the dialog title if it is known
             if (contentLength > 0) {
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                     if (contentLength / unitSize > 100) {
                         unitSize *= 1024;
                     } else {
-                        dialogTitle += String.format(Locale.getDefault(), " (%.2f %cB)", contentLength / unitSize, new char[]{'\0', 'k', 'M', 'G', 'T'}[i]);
+                        dialogTitle += String.format(Locale.getDefault(), getString(R.string.file_size_format), contentLength / unitSize, new char[]{'\0', 'k', 'M', 'G', 'T'}[i]);
                         break;
                     }
                 }
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
             new MaterialAlertDialogBuilder(MainActivity.this)
                     .setTitle(dialogTitle)
                     .setMessage(fileName)
-                    .setPositiveButton("Download", (dialog, which) -> {
+                    .setPositiveButton(R.string.download, (dialog, which) -> {
                         dialog.dismiss();
 
                         // Start the download
@@ -120,15 +120,15 @@ public class MainActivity extends AppCompatActivity {
 
                         if (downloadManager != null) {
                             downloadManager.enqueue(request);
-                            Toast.makeText(MainActivity.this, "Download started", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, R.string.download_started, Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(MainActivity.this, "Error: download manager not found", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, R.string.download_error, Toast.LENGTH_SHORT).show();
                         }
                     })
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss()).show();
+                    .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss()).show();
         });
 
-        // Disable cookies
+        // Disable third-party cookies
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, false);
 
         // Set up the back gesture handling
@@ -160,12 +160,12 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        // Set up the search
+        // Set up the search function
         searchView.getEditText().setOnEditorActionListener((v, actionId, event) -> {
             if (Patterns.WEB_URL.matcher(searchView.getText()).matches()) {
                 webView.loadUrl(searchView.getText().toString());
             } else {
-                webView.loadUrl("https://www.bing.com/search?q=" + searchView.getText());
+                webView.loadUrl(getString(R.string.search_string) + searchView.getText());
             }
 
             searchBar.setText(searchView.getText());

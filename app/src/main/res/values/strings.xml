@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">OneTab</string>
     <string name="home_page">https://www.bing.com</string>
+    <string name="search_string">https://www.bing.com/search?q=</string>
+    <string name="cancel">Cancel</string>
+    <string name="download">Download</string>
+    <string name="download_started">Download started</string>
+    <string name="download_error">Error: download manager not found</string>
+    <string name="file_size_format">" (%.2f %cB)"</string>
+    <string name="download_dialog_title">Download file?</string>
+    <string name="content_blocked">This content is blocked</string>
 </resources>
