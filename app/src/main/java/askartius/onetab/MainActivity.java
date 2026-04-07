@@ -173,13 +173,23 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        handleIntent(getIntent());
+        // Restore the previous webpage or load a new one
+        if (savedInstanceState != null) {
+            webView.loadUrl(savedInstanceState.getString("url", getString(R.string.home_page)));
+        } else {
+            handleIntent(getIntent());
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("url", webView.getUrl());
     }
 
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
-
         setIntent(intent);
         handleIntent(intent);
     }
@@ -187,13 +197,12 @@ public class MainActivity extends AppCompatActivity {
     private void handleIntent(@NonNull Intent intent) {
         if (Objects.equals(intent.getAction(), Intent.ACTION_VIEW)) {
             Uri uri = intent.getData();
-
             if (uri != null && (Objects.equals(uri.getScheme(), "https") || Objects.equals(uri.getScheme(), "http"))) {
                 webView.loadUrl(uri.toString());
                 return;
             }
         }
 
-        webView.loadUrl("https://www.bing.com");
+        webView.loadUrl(getString(R.string.home_page)); // Otherwise, load the home page
     }
 }
